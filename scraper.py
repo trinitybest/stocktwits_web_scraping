@@ -31,7 +31,7 @@ class Sel(unittest.TestCase):
         delay = 3
         driver.get(self.base_url)
         #driver.find_element_by_link_text("All").click()
-        for i in range(1,1000):
+        for i in range(1,100):
         #for i in range(1,3):
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);") # the sententce to make website auto scrolling
             time.sleep(4)
