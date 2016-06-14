@@ -8,4 +8,5 @@ Instead, I use a different approach, which let Python "scroll" down the webpage 
  - CreateTable.sql is the T-SQL file to create the table.
  
 I'm still updating this project. If you find any bugs, please kindly raise an issue:)
+The solution is not optimal yet. I'm working a more sophisticated solution.
 
