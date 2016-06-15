@@ -129,17 +129,17 @@ def get_features(json):
 							"sentiment": sentiment,
 							"ticker": ticker,
 							"tickers_include": tickersInclude,
-							"user_id": userID,
+							"user_id": int(userID),
 							"image_dummy": image,
 							"video_dummy": video,
-							"total_likes": totalLikes,
-							"total_reshares": totalReshares,
+							"total_likes": int(totalLikes),
+							"total_reshares": int(totalReshares),
 							'reshared': reshared,
-							'reshared_tweet_id':reshare_id,
+							'reshared_tweet_id':int(reshare_id),
 							'tweet_url': tweetUrl,
-							'replies': replies,
+							'replies': int(replies),
 							'link_embed': link_embed}
-					User = {"user_ID":userID,
+					User = {"user_ID":int(userID),
 							"user_name": userName,
 							"user_path": userPath}
 					print(Tweet, User)
@@ -159,7 +159,7 @@ if __name__ == "__main__":
       ,[DateTime]
       ,[Date]
       ,[Time]
-      ,[Content] body
+      ,[Content] body 
       ,[Sentiment]
       ,[Ticker]
       ,[TickersInclude]
