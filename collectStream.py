@@ -7,6 +7,7 @@ import requests
 import json
 from datetime import datetime
 from urllib.parse import urljoin
+from insertDB import insertTweet, insertUser
 BASE_URL = 'http://stocktwits.com'
 
 def get_json(max, stream_id):
@@ -39,11 +40,10 @@ def get_json(max, stream_id):
 	else:
 		return json.loads(resp.content.decode()) # Decode binary str to normal str.
 
-def get_features(json):
-	if json == None:
+def get_features(json_param, ticker):
+	if json_param == None:
 		print('No JSON loaded.')
 	else:
-		ticker = 'AAPL'
 		reshared = 0
 		reshare_id = None
 		image = 0
@@ -51,130 +51,141 @@ def get_features(json):
 		in_reply_to_message_id = None
 		link_embed = 0
 		embedUrl = None
-		for k, v in json.items():
+		sentiment = None
+		tweetUrl = None
+		replies = 0
+		for k, v in json_param.items():
 			if k == 'messages': # Find the messages with 'messages' as the key
 				print('number of messages: ', len(v)) # v is a list
+				#print(v[1])
 				for message_count in range(0,len(v)): # We will have 30 messages here by default. More details available at http://stocktwits.com/developers/docs/api#streams-symbol-docs
-				#for message_count in range(0,2):
-					for key, value in v[message_count].items():
-						if key == 'id':
-							id = value
-							#print(id)
-						elif  key == 'created_at':
-							dateTime = value
-							date = datetime.strptime(dateTime, '%a, %d %b %Y %H:%M:%S %z').date().strftime("%Y-%m-%d")
-							time = datetime.strptime(dateTime, '%a, %d %b %Y %H:%M:%S %z').time().strftime("%H:%M:%S")
-							#print(date, time)
-						elif key == 'body':
-							body = value
-							tickersInclude = {tag.strip('$') for tag in body.split() if tag.startswith('$')}
-							tickersInclude = ', '.join(tickersInclude)
-							#print(body)
-							#print(tickersInclude)
-						elif key == 'user':
-							for user_key, user_value in value.items():
-								if user_key == 'id':
-									userID = user_value
-									#print(userID)
-								elif user_key == 'username':
-									userName = user_value
-									#print(userName)
-						elif key == 'total_likes':
-							totalLikes = value 
-							#print(totalLikes)
-						elif key == 'total_reshares':
-							totalReshares = value
-							#print(totalReshares)
-						elif key == 'reshare_message':
-							reshared = 1
-							#print(value)
-							for reshare_key, reshare_value in value.items():
-								if reshare_key == 'message':
-									for reshare_msg_key, reshare_msg_value in reshare_value.items():
-										if reshare_msg_key == 'id':
-											reshare_id = reshare_msg_value
-											#print('reshare_id: ',reshare_id)
-						elif key == 'conversation':
-							for con_key, con_value in value.items():
-								if con_key == 'path':
-									tweetUrl = urljoin(BASE_URL, con_value)
-									#print('tweetUrl: ',tweetUrl)
-								elif con_key == 'replies':
-									replies = con_value
-									#print('replies: ', replies)
-						elif key == 'sentiment':
-							sentiment = value
-							#print("Sentiment: ",sentiment)
-						elif key == 'view_chart':
-							image = 1
-						elif key == 'in_reply_to_message_id':
-							in_reply_to_message_id = value
-						elif key == 'user_path':
-							userPath = urljoin(BASE_URL, value)
-							#print(userPath)
-						elif key == 'link_embed':
-							link_embed = 1
-							for embed_key, embed_value in value.items():
-								if embed_key == 'video_url':
-									if embed_value == 'None':
-										video = 0
-									else:
-										video = 1
-							#print('video: ',video)
-					Tweet = {"tweet_ID": id,
-							"date_time": dateTime,
-							"date": date, 
-							"time": time,
-							"body": body,
-							"sentiment": sentiment,
-							"ticker": ticker,
-							"tickers_include": tickersInclude,
-							"user_id": int(userID),
-							"image_dummy": image,
-							"video_dummy": video,
-							"total_likes": int(totalLikes),
-							"total_reshares": int(totalReshares),
-							'reshared': reshared,
-							'reshared_tweet_id':int(reshare_id),
-							'tweet_url': tweetUrl,
-							'replies': int(replies),
-							'link_embed': link_embed}
-					User = {"user_ID":int(userID),
-							"user_name": userName,
-							"user_path": userPath}
-					print(Tweet, User)
+				#for message_count in range(0,1):
+					#print(message_count)
+					try:
+						for key, value in v[message_count].items():
+							if key == 'id':
+								id = value
+								#print(id)
+							elif  key == 'created_at':
+								dateTime = value
+								date = datetime.strptime(dateTime, '%a, %d %b %Y %H:%M:%S %z').date().strftime("%Y-%m-%d")
+								time = datetime.strptime(dateTime, '%a, %d %b %Y %H:%M:%S %z').time().strftime("%H:%M:%S")
+								body = value.strip()
+								tickersInclude = {tag.strip('$') for tag in body.split() if tag.startswith('$')}
+								tickersInclude = ', '.join(tickersInclude)
+								#print(body)
+								#print(tickersInclude)
+							elif key == 'user':
+								for user_key, user_value in value.items():
+									if user_key == 'id':
+										userID = user_value
+										#print(userID)
+									elif user_key == 'username':
+										userName = user_value
+										#print(userName)
+							elif key == 'total_likes':
+								totalLikes = value 
+								#print(totalLikes)
+							elif key == 'total_reshares':
+								totalReshares = value
+								#print(totalReshares)
+							elif key == 'reshare_message':
+								reshared = 1
+								#print(value)
+								for reshare_key, reshare_value in value.items():
+									if reshare_key == 'message':
+										for reshare_msg_key, reshare_msg_value in reshare_value.items():
+											if reshare_msg_key == 'id':
+												reshare_id = reshare_msg_value
+												#print('reshare_id: ',reshare_id)
+							elif key == 'conversation':
+								for con_key, con_value in value.items():
+									if con_key == 'path':
+										tweetUrl = urljoin(BASE_URL, con_value)
+										#print('tweetUrl: ',tweetUrl)
+									elif con_key == 'replies':
+										replies = con_value
+										#print('replies: ', replies)
+							elif key == 'sentiment':
+								#print(value)
+								#print(type(value))
+								if type(value) is dict:
+									for sentiment_key, sentiment_value in value.items():
+										if sentiment_key == 'name':
+											sentiment = sentiment_value
+								else:
+									sentiment = value
+
+								#print("Sentiment: ",sentiment)
+							elif key == 'view_chart':
+								image = 1
+							elif key == 'in_reply_to_message_id':
+								in_reply_to_message_id = value
+							elif key == 'user_path':
+								userPath = urljoin(BASE_URL, value)
+								#print(userPath)
+							elif key == 'link_embed':
+								link_embed = 1
+								for embed_key, embed_value in value.items():
+									if embed_key == 'video_url':
+										if embed_value == 'None':
+											video = 0
+										else:
+											video = 1
+								#print('video: ',video)
+						Tweet = {"tweet_ID": id,
+								"date_time": dateTime,
+								"date": date, 
+								"time": time,
+								"body": body,
+								"sentiment": sentiment,
+								"ticker": ticker,
+								"tickers_include": tickersInclude,
+								"user_id": int(userID),
+								"image_dummy": image,
+								"video_dummy": video,
+								"total_likes": int(totalLikes),
+								"total_reshares": int(totalReshares),
+								'reshared': reshared,
+								'reshared_tweet_id':reshare_id,
+								'tweet_url': tweetUrl,
+								'replies': int(replies),
+								'link_embed': link_embed}
+						User = {"user_ID":int(userID),
+								"user_name": userName,
+								"user_path": userPath}
+						#print(Tweet, User)
+						#print(message_count)
+						#print(Tweet)
+						if insertTweet(Tweet)!= 'success':
+							pass
+						if insertUser(User)!='success':
+							pass
+					except Exception as e:
+						print(e)
 			elif k == 'max':
 				max = v
+		return max
 					#f.write("\n ############################### \n")
 		
 		print(max)
 if __name__ == "__main__":
-	#with open("features.txt", "w") as f:
+	#with open("features.txt", "a") as f:
 		#f.write(str(get_json()))
-	json = get_json('56591341', '686')
-	get_features(json)
-"""
-[ID]
-      ,[TweetID]
-      ,[DateTime]
-      ,[Date]
-      ,[Time]
-      ,[Content] body 
-      ,[Sentiment]
-      ,[Ticker]
-      ,[TickersInclude]
-      ,[Name]  userName(delete)  +userID (add)
-      ,[NameLink] (delete)
-      ,[ImageDummy]
-      ,[VideoDummy]
-      ,[Like] TotalLikes
-      ,[Retweet] TotalReshares
-      ,[Reshared] 
-      ,[ResharedTweetID]
-      ,[TweetUrl]
-      ,[CreatedAt]
-      ,[UpdatedAt]
-"""
+	#json = get_json('56670305', '686')
+	#max = get_features(json, 'AAPL')
+	tickerGroup = [('AAPL', '686'), ('GOOG', '2044'), ('GOOGL', '11938'),('MSFT', '2735'), ('BRK.A', '4586'), ('BRK.B', '8132'), ('XOM', '7825'), ('FB', '7871'), 
+	('JNJ', '6011'), ('GE','5481'), ('AMZN', '864'), ('WFC', '7718')]
+	#print(tickerGroup[0][1])
+	
+	for i in range(0, len(tickerGroup)):
+		max = 56670305
+		for j in range(0, 100):
+			#print(i)
+			print(j,tickerGroup[i][0], max)
+			jsonFile = get_json(str(max), tickerGroup[i][1])
+			max = get_features(jsonFile, tickerGroup[i][0])
+	
 
 
 
