@@ -10,4 +10,6 @@ Instead, I use a different approach, which let Python "scroll" down the webpage 
  
 I'm still updating this project. If you find any bugs, please kindly raise an issue:)
 The solution is not optimal yet. I'm working a more sophisticated solution.
+##The Second Approach
+This approach gets data by using "GET" resquest from a customized URL.
 
