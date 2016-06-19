@@ -5,3 +5,4 @@ __pycache__
 IF NOT EXISTS INSERT ELSE UPDATE.sql
 collectTweets_with_print.py
 *.PNG
+mutliThreading

@@ -29,13 +29,15 @@ def get_json(max, stream_id):
 	for i in range(4):
 		try:
 			resp = requests.get('http://stocktwits.com/streams/poll?stream=symbol&max='+max+'&stream_id='+stream_id+'&substream=top&item_id='+stream_id, headers = headers, timeout=5)
-		except requests.Timeout:
-			log.error('GET Timeout.')
+		except Exception as e:
+			print("Time Out: ", e)
+			with open("TimeOut.txt", "a") as f1:
+				f1.write('http://stocktwits.com/streams/poll?stream=symbol&max='+max+'&stream_id='+stream_id+'&substream=top&item_id='+stream_id+'\n')
 			#log.error('GET Timeout to {} w/ {}'.format(url[len(ST_BASE_URL):], trimmed_params))
 		if resp is not None:
 			break
 	if resp is None:
-		log.error('GET loop Timeout')
+		#log.error('GET loop Timeout')
 		return None
 	else:
 		return json.loads(resp.content.decode()) # Decode binary str to normal str.
@@ -158,9 +160,11 @@ def get_features(json_param, ticker):
 						#print(message_count)
 						#print(Tweet)
 						if insertTweet(Tweet)!= 'success':
-							pass
+							with open("insertTweetError.txt", "a") as f2:
+								f2.write(id + '\n')
 						if insertUser(User)!='success':
-							pass
+							with open("insertUserError.txt", "a") as f3:
+								f3.write(userID + '\n')
 					except Exception as e:
 						print(e)
 			elif k == 'max':
@@ -177,10 +181,11 @@ if __name__ == "__main__":
 	tickerGroup = [('AAPL', '686'), ('GOOG', '2044'), ('GOOGL', '11938'),('MSFT', '2735'), ('BRK.A', '4586'), ('BRK.B', '8132'), ('XOM', '7825'), ('FB', '7871'), 
 	('JNJ', '6011'), ('GE','5481'), ('AMZN', '864'), ('WFC', '7718')]
 	#print(tickerGroup[0][1])
-	
+	#56670305
 	for i in range(0, len(tickerGroup)):
-		max = 56670305
-		for j in range(0, 100):
+		#max = 56670305
+		max = 55098250
+		for j in range(0, 1000):
 			#print(i)
 			print(j,tickerGroup[i][0], max)
 			jsonFile = get_json(str(max), tickerGroup[i][1])
