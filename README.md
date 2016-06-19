@@ -12,4 +12,6 @@ I'm still updating this project. If you find any bugs, please kindly raise an is
 The solution is not optimal yet. I'm working a more sophisticated solution.
 ##The Second Approach
 This approach gets data by using "GET" resquest from a customized URL.
+- collectStream.py gets data from URLs.
+- insertDB.py inserts the parse Tweets into a database. *Please be aware that this insertDB has a different table desgin in comparison with the insertDB from the first approach*
 
