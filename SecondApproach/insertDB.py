@@ -26,7 +26,7 @@ def insertTweet(Tweet):
 						ELSE \
 						BEGIN \
 							UPDATE dbo.StockTwits_Tweets \
-							SET TotalLikes = %s, TotalReshares = %s, Replies= %s, UpdatedAt = %s \
+							SET TotalLikes = %s, TotalReshares = %s, Replies= %s, UpdatedAt = %s,  TickersInclude = %s, Body = %s \
 							WHERE TweetID = %s \
 						END \
 						",(Tweet['tweet_ID'], 
@@ -34,7 +34,7 @@ def insertTweet(Tweet):
 							Tweet['sentiment'], Tweet['ticker'], Tweet['tickers_include'], Tweet['user_id'], Tweet['image_dummy'], 
 							Tweet['video_dummy'], Tweet['total_likes'], Tweet['total_reshares'], Tweet['reshared'], Tweet['reshared_tweet_id'], Tweet['tweet_url'],Tweet['replies'], 
 							now, now,
-							Tweet['total_likes'], Tweet['total_reshares'], Tweet['replies'], now, Tweet['tweet_ID']) )
+							Tweet['total_likes'], Tweet['total_reshares'], Tweet['replies'], now, Tweet['tickers_include'], Tweet['body'],Tweet['tweet_ID']) )
 		conn.commit()
 		return "success"
 	except Exception as e:
