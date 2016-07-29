@@ -59,6 +59,7 @@ def get_features(json_param, ticker):
 		sentiment = None
 		tweetUrl = None
 		replies = 0
+		Tweet = None
 		for k, v in json_param.items():
 			if k == 'messages': # Find the messages with 'messages' as the key
 				print('number of messages: ', len(v)) # v is a list
@@ -171,10 +172,10 @@ def get_features(json_param, ticker):
 						print(e)
 			elif k == 'max':
 				max = v
-		return max
+		return (max, Tweet)
 					#f.write("\n ############################### \n")
 		
-		print(max)
+		#print(max)
 
 def collectStream(max, tickerTuple):
 	for j in range(0, 2000):
@@ -203,15 +204,20 @@ if __name__ == "__main__":
 	('JNJ', '6011'), ('GE','5481'), ('AMZN', '864'), ('WFC', '7718')]
 	#print(tickerGroup[0][1])
 	#56670305
-	"""
+	
 	for i in range(0, len(tickerGroup)):
 		#max = 56670305 56932346
-		max = 55098250
+		max = 59444655
 		for j in range(0, 1000):
 			#print(i)
-			#print(j,tickerGroup[i][0], max)
+			
 			jsonFile = get_json(str(max), tickerGroup[i][1])
-			max = get_features(jsonFile, tickerGroup[i][0])
+			max = get_features(jsonFile, tickerGroup[i][0])[0]
+			Tweet = get_features(jsonFile, tickerGroup[i][0])[1]
+			print(j,tickerGroup[i][0], max, Tweet["date"])
+			if(Tweet["date"]=="2015-12-31"):
+				break
+
 	"""
 	max = 56932346
 	#collectStream(max, tickerGroup[0])
@@ -221,6 +227,7 @@ if __name__ == "__main__":
 
 	for i in range(0, len(tickerGroup)):
 		thread[i].start()
+	"""
 
 
 
